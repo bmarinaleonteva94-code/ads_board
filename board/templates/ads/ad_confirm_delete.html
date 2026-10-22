@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Удаление объявления — Рядом{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="form-page">
+        <div class="form-card delete-card">
+
+            <div class="delete-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                    <path d="M3 6h18" stroke-linecap="round"/>
+                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke-linecap="round"/>
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" stroke-linecap="round"/>
+                    <path d="M10 11v6M14 11v6" stroke-linecap="round"/>
+                </svg>
+            </div>
+
+            <h1>Удалить объявление?</h1>
+            <p class="delete-subtitle">
+                Действие нельзя отменить. Объявление исчезнет из ленты и из вашего кабинета.
+            </p>
+
+            <div class="delete-preview">
+                <div class="delete-preview-image">
+                    {% if ad.image %}
+                        <img src="{{ ad.image.url }}" alt="{{ ad.title }}">
+                    {% else %}
+                        <div class="ad-image-placeholder"></div>
+                    {% endif %}
+                </div>
+                <div class="delete-preview-info">
+                    <div class="delete-preview-price">{{ ad.price }} ₽</div>
+                    <div class="delete-preview-title">{{ ad.title }}</div>
+                    {% if ad.city %}
+                        <div class="delete-preview-meta">{{ ad.city }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <form method="post" class="form-actions">
+                {% csrf_token %}
+                <button type="submit" class="btn-primary btn-danger">Удалить объявление</button>
+                <a href="{% url 'ads:my_ads' %}" class="btn-secondary">Отмена</a>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

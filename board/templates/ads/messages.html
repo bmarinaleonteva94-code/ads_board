@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Сообщения — Рядом{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="my-ads-page">
+        <div class="my-ads-head">
+            <h1>Сообщения</h1>
+        </div>
+
+        {% if messages_list %}
+            <div class="ads-table-wrap">
+                <table class="ads-table">
+                    <thead>
+                        <tr>
+                            <th>От кого</th>
+                            <th>Объявление</th>
+                            <th>Сообщение</th>
+                            <th>Дата</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for m in messages_list %}
+                        <tr class="{% if not m.is_read and m.recipient == user %}unread-row{% endif %}">
+                            <td>
+                                {% if m.sender == user %}
+                                    → {{ m.recipient.username }}
+                                {% else %}
+                                    {{ m.sender.username }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if m.ad %}
+                                    <a href="{{ m.ad.get_absolute_url }}">{{ m.ad.title|truncatechars:40 }}</a>
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td>{{ m.text|truncatechars:60 }}</td>
+                            <td>{{ m.created_at|date:"d.m.Y H:i" }}</td>
+                            <td>
+                                {% if not m.is_read and m.recipient == user %}
+                                    <span class="status-badge status-pending">Новое</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <h3>Сообщений нет</h3>
+                <p>Здесь появятся ваши переписки с покупателями и продавцами</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

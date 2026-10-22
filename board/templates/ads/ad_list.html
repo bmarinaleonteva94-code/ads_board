@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block title %}Купить, снять, найти мастера{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <section class="hero">
+        <h1 class="hero-title">Купить, снять, найти мастера</h1>
+
+        <form method="get" class="search-bar">
+            <div class="search-input-wrap">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="7"/>
+                    <path d="M21 21l-4.35-4.35" stroke-linecap="round"/>
+                </svg>
+                <input type="text" name="q" class="search-input"
+                       placeholder="Велосипед, однушка, сантехник..." value="{{ query }}">
+            </div>
+
+            <span class="search-divider"></span>
+
+            <select name="city" class="city-select">
+                <option value="">Все города</option>
+                <option value="Москва" {% if city == 'Москва' %}selected{% endif %}>Москва</option>
+                <option value="Санкт-Петербург" {% if city == 'Санкт-Петербург' %}selected{% endif %}>Санкт-Петербург</option>
+                <option value="Казань" {% if city == 'Казань' %}selected{% endif %}>Казань</option>
+                <option value="Екатеринбург" {% if city == 'Екатеринбург' %}selected{% endif %}>Екатеринбург</option>
+                <option value="Чебоксары" {% if city == 'Чебоксары' %}selected{% endif %}>Чебоксары</option>
+            </select>
+
+            <input type="hidden" name="category" value="{{ category_slug }}">
+            <input type="hidden" name="sort" value="{{ sort }}">
+
+            <button type="submit" class="btn-search">Найти</button>
+            
+        </form>
+    </section>
+
+    <!-- Основная сетка -->
+    <div class="layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-title">Все рубрики</div>
+            <ul class="rubric-list">
+                <li class="rubric-item {% if not category_slug %}active{% endif %}">
+                    <a href="?{% if query %}q={{ query }}&{% endif %}{% if city %}city={{ city }}&{% endif %}">
+                        <span>Все объявления</span>
+                    </a>
+                </li>
+                {% for cat in categories %}
+                    <li class="rubric-item {% if cat.slug == category_slug %}active{% endif %}">
+                        <a href="?category={{ cat.slug }}{% if query %}&q={{ query }}{% endif %}{% if city %}&city={{ city }}{% endif %}">
+                            <span>{{ cat.name }}</span>
+                            <span class="rubric-count">{{ cat.ads.count }}</span>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </aside>
+
+        <!-- Content -->
+        <section class="content-panel">
+            <div class="panel-head">
+                <div class="panel-tabs">
+                    {% if category_slug %}
+                        <span>{{ category_slug|upper }}</span>
+                    {% else %}
+                        <span>ВСЕ РУБРИКИ</span>
+                    {% endif %}
+                    <span class="dot">·</span>
+                    <span class="tab-active">СВЕЖИЕ</span>
+                    <span class="dot">·</span>
+                    <span>{{ page_obj.paginator.count }}</span>
+                </div>
+
+                <form method="get" id="sortForm">
+                    <input type="hidden" name="q" value="{{ query }}">
+                    <input type="hidden" name="category" value="{{ category_slug }}">
+                    <input type="hidden" name="city" value="{{ city }}">
+                    <select name="sort" class="sort-select" onchange="document.getElementById('sortForm').submit()">
+                        <option value="new" {% if sort == 'new' %}selected{% endif %}>Сначала свежие</option>
+                        <option value="old" {% if sort == 'old' %}selected{% endif %}>Сначала старые</option>
+                        <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Сначала дешёвые</option>
+                        <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Сначала дорогие</option>
+                        <option value="popular" {% if sort == 'popular' %}selected{% endif %}>Популярные</option>
+                    </select>
+                </form>
+            </div>
+
+            <!-- Сетка карточек -->
+            <div class="ads-grid">
+                {% for ad in page_obj %}
+                    <a href="{{ ad.get_absolute_url }}" class="ad-card">
+                        <div class="ad-image">
+                            {% if ad.image %}
+                                <img src="{{ ad.image.url }}" alt="{{ ad.title }}">
+                            {% else %}
+                                <div class="ad-image-placeholder"></div>
+                            {% endif %}
+                        </div>
+                        <div class="ad-price">{{ ad.price }} ₽</div>
+                        <div class="ad-title">{{ ad.title }}</div>
+                        {% if ad.city %}
+                            <div class="ad-meta">{{ ad.city }}</div>
+                        {% endif %}
+                    </a>
+                {% empty %}
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <h3>Ничего не найдено</h3>
+                        <p>Попробуйте изменить параметры поиска</p>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Пагинация -->
+            {% if page_obj.paginator.num_pages > 1 %}
+                <nav class="pagination">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}&{{ querystring }}">←</a>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if num == page_obj.number %}
+                            <span class="current">{{ num }}</span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} 
+                            <a href="?page={{ num }}&{{ querystring }}">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}&{{ querystring }}">→</a>
+                    {% endif %}
+                </nav>
+            {% endif %}
+        </section>
+    </div>
+</div>
+{% endblock %}
+
+                           

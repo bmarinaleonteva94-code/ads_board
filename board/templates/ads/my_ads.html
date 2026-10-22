@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <div class="my-ads-page">
+        <div class="my-ads-head">
+            <h1>Мои объявления</h1>
+            <a href="{% url 'ads:ad_create' %}" class="btn-primary">+ Подать объявление</a>
+        </div>
+
+        <div class="ads-table-wrap">
+            <table class="ads-table">
+                <thead>
+                    <tr>
+                        <th>Заголовок</th>
+                        <th>Цена</th>
+                        <th>Статус</th>
+                        <th>Модерация</th>
+                        <th>Просм.</th>
+                        <th>Дата</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for ad in ads %}
+                    <tr>
+                        <td><a href="{{ ad.get_absolute_url }}">{{ ad.title }}</a></td>
+                        <td>{{ ad.price }} ₽</td>
+                        <td>
+                            {% if ad.status == 'published' %}<span class="status-badge status-published">Опубликовано</span>
+                            {% elif ad.status == 'draft' %}<span class="status-badge status-draft">Черновик</span>
+                            {% else %}<span class="status-badge status-archived">В архиве</span>{% endif %}
+                        </td>
+                        <td>
+                            {% if ad.is_moderated %}<span class="status-badge status-approved">✓</span>
+                            {% else %}<span class="status-badge status-pending">На проверке</span>{% endif %}
+                        </td>
+                        <td>{{ ad.views }}</td>
+                        <td>{{ ad.created_at|date:"d.m.Y" }}</td>
+                        <td class="text-nowrap">
+                            <a href="{% url 'ads:ad_edit' ad.slug %}" class="btn-sm">Изм.</a>
+                            <a href="{% url 'ads:ad_delete' ad.slug %}" class="btn-sm danger">Удал.</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="7" style="text-align:center;padding:40px;color:#9a9a9a;">Объявлений пока нет</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

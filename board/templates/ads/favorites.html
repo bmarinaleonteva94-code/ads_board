@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Избранное — Рядом{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="my-ads-page">
+        <div class="my-ads-head">
+            <h1>Избранное</h1>
+        </div>
+
+        {% if items %}
+            <div class="ads-grid">
+                {% for fav in items %}
+                    <a href="{{ fav.ad.get_absolute_url }}" class="ad-card">
+                        <div class="ad-image">
+                            {% if fav.ad.image %}
+                                <img src="{{ fav.ad.image.url }}" alt="{{ fav.ad.title }}">
+                            {% else %}
+                                <div class="ad-image-placeholder"></div>
+                            {% endif %}
+                        </div>
+                        <div class="ad-price">{{ fav.ad.price }} ₽</div>
+                        <div class="ad-title">{{ fav.ad.title }}</div>
+                        {% if fav.ad.city %}
+                            <div class="ad-meta">{{ fav.ad.city }}</div>
+                        {% endif %}
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <h3>В избранном пока пусто</h3>
+                <p>Нажимайте ♡ на объявлениях, чтобы сохранить их здесь</p>
+                <a href="{% url 'ads:ad_list' %}" class="btn-primary" style="margin-top:16px;">
+                    Смотреть объявления
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

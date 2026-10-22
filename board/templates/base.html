@@ -1,0 +1,207 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Рядом — доска объявлений{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<!-- ===================== HEADER ===================== -->
+<header class="site-header">
+    <div class="header-inner">
+
+        <!-- Логотип -->
+        <a href="{% url 'ads:ad_list' %}" class="logo">
+            <span class="logo-text">Доска объявлений</span>
+        </a>
+
+        <!-- Навигация -->
+        <nav class="main-nav">
+            {% if user.is_authenticated %}
+                <a href="{% url 'ads:favorites' %}" class="nav-link">
+                    Избранное
+                    {% if favorites_count %}
+                        <span class="badge-count">{{ favorites_count }}</span>
+                    {% endif %}
+                </a>
+
+                <a href="{% url 'ads:messages' %}" class="nav-link">
+                    Сообщения
+                    {% if unread_messages_count %}
+                        <span class="badge-count">{{ unread_messages_count }}</span>
+                    {% endif %}
+                </a>
+
+                <a href="{% url 'ads:my_ads' %}" class="nav-link">Мои объявления</a>
+            {% endif %}
+
+            <a href="#" class="nav-link">Помощь</a>
+        </nav>
+
+        <!-- Правый блок -->
+        <div class="header-actions">
+            {% if user.is_authenticated %}
+                <div class="user-menu">
+                    <span class="user-name">👤 {{ user.username }}</span>
+                    <a href="{% url 'ads:logout' %}" class="link-quiet">Выйти</a>
+                </div>
+                <a href="{% url 'ads:ad_create' %}" class="btn-primary">
+                    Подать объявление
+                </a>
+            {% else %}
+                <a href="{% url 'ads:login' %}" class="link-quiet">Вход</a>
+                <a href="{% url 'ads:ad_create' %}" class="btn-primary">
+                    Подать объявление
+                </a>
+            {% endif %}
+        </div>
+
+    </div>
+</header>
+
+<!-- ===================== СООБЩЕНИЯ ===================== -->
+{% if messages %}
+    <div class="container">
+        <div class="toasts">
+            {% for message in messages %}
+                <div class="toast-message toast-{{ message.tags|default:'info' }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+
+<!-- ===================== КОНТЕНТ ===================== -->
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="site-footer">
+    <div class="container footer-inner">
+        <div>© {% now "Y" %} Доска объявлений</div>
+        <div class="footer-links">
+            <a href="#">О проекте</a>
+            <a href="#">Правила</a>
+            {% if user.is_staff %}
+                <a href="/admin/">Админка</a>
+            {% endif %}
+        </div>
+    </div>
+</footer>
+
+<!-- ===================== ГЛОБАЛЬНЫЙ JS ===================== -->
+<script>
+/* Универсальный обработчик всех форм «В избранное» на странице */
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.fav-form').forEach(form => {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btn = form.querySelector('.fav-btn, .fav-mini');
+            const icon = form.querySelector('svg');
+            const label = form.querySelector('.fav-label');
+
+            const res = await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+            if (!res.ok) return;
+
+            const data = await res.json();
+
+            if (btn) btn.classList.toggle('is-active', data.is_favorited);
+            if (icon) icon.setAttribute('fill', data.is_favorited ? 'currentColor' : 'none');
+            if (label) label.textContent = data.is_favorited ? 'В избранном' : 'В избранное';
+
+            const favLink = document.querySelector('a[href*="/favorites/"]');
+            if (favLink) {
+                let badge = favLink.querySelector('.badge-count');
+                if (data.favorites_count > 0) {
+                    if (!badge) {
+                        badge = document.createElement('span');
+                        badge.className = 'badge-count';
+                        favLink.appendChild(document.createTextNode(' '));
+                        favLink.appendChild(badge);
+                    }
+                    badge.textContent = data.favorites_count;
+                } else if (badge) {
+                    badge.remove();
+                }
+            }
+        });
+    });
+
+    /* Автоскрытие тостов через 5 секунд */
+    document.querySelectorAll('.toast-message').forEach(el => {
+        setTimeout(() => {
+            el.style.transition = 'opacity .4s, transform .4s';
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(-6px)';
+            setTimeout(() => el.remove(), 400);
+        }, 5000);
+    });
+
+
+    /* ===== Показать/скрыть пароль ===== */
+    document.querySelectorAll('input[type="password"]').forEach(input => {
+        // Пропускаем, если уже обёрнут
+        if (input.parentElement.classList.contains('password-wrap')) return;
+
+        const wrap = document.createElement('div');
+        wrap.className = 'password-wrap';
+        input.parentNode.insertBefore(wrap, input);
+        wrap.appendChild(input);
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'password-toggle';
+        btn.setAttribute('aria-label', 'Показать пароль');
+        btn.innerHTML = `
+            <svg class="eye-open" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.8">
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"
+                      stroke-linejoin="round"/>
+                <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <svg class="eye-closed" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.8" style="display:none;">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20
+                         c-7 0-10-8-10-8a18.45 18.45 0 0 1 5.06-5.94
+                         M9.9 4.24A9.12 9.12 0 0 1 12 4
+                         c7 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19
+                         M1 1l22 22"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        `;
+        wrap.appendChild(btn);
+
+        btn.addEventListener('click', () => {
+            const isHidden = input.type === 'password';
+            input.type = isHidden ? 'text' : 'password';
+            btn.querySelector('.eye-open').style.display = isHidden ? 'none' : '';
+            btn.querySelector('.eye-closed').style.display = isHidden ? '' : 'none';
+            btn.setAttribute('aria-label', isHidden ? 'Скрыть пароль' : 'Показать пароль');
+        });
+    });
+
+});
+</script>
+
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

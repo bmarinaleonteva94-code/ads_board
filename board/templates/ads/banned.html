@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Доступ заблокирован — Рядом{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="auth-page" style="max-width:560px;">
+        <div class="auth-card" style="text-align:center;">
+
+            <div class="delete-icon" style="background:#fdecec;color:#c0392b;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M4.93 4.93l14.14 14.14" stroke-linecap="round"/>
+                </svg>
+            </div>
+
+            <h1>Доступ заблокирован</h1>
+            <p class="delete-subtitle">
+                Ваш аккаунт был заблокирован модератором.
+                {% if ban and ban.is_permanent %}
+                    Блокировка бессрочная.
+                {% elif ban and ban.expires_at %}
+                    Доступ восстановится <strong>{{ ban.expires_at|date:"d.m.Y H:i" }}</strong>.
+                {% endif %}
+            </p>
+
+            {% if ban %}
+                <div class="ban-info">
+                    <div class="ban-row">
+                        <span class="ban-key">Причина</span>
+                        <span class="ban-val">{{ ban.get_reason_display }}</span>
+                    </div>
+                    {% if ban.comment %}
+                        <div class="ban-row">
+                            <span class="ban-key">Комментарий</span>
+                            <span class="ban-val">{{ ban.comment }}</span>
+                        </div>
+                    {% endif %}
+                    <div class="ban-row">
+                        <span class="ban-key">Дата блокировки</span>
+                        <span class="ban-val">{{ ban.banned_at|date:"d.m.Y H:i" }}</span>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="form-actions" style="justify-content:center;border-top:none;padding-top:24px;">
+                <a href="{% url 'ads:ad_list' %}" class="btn-primary">На главную</a>
+            </div>
+
+            <div class="auth-footer" style="margin-top:20px;">
+                Считаете блокировку ошибкой? Напишите на
+                <a href="mailto:support@ryadom.ru">support@ryadom.ru</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

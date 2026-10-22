@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load ads_extras %}
+{% block title %}{{ ad.title }} — Рядом{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="ad-detail">
+
+        <!-- ===== Основная карточка ===== -->
+        <div class="ad-detail-card">
+
+            <!-- Изображение -->
+            <div class="ad-detail-image">
+                {% if ad.image %}
+                    <img src="{{ ad.image.url }}" alt="{{ ad.title }}">
+                {% else %}
+                    <div class="ad-image-placeholder"></div>
+                {% endif %}
+            </div>
+
+            <!-- Информация -->
+            <div class="ad-detail-info">
+
+                <div class="detail-head">
+                    <h1>{{ ad.title }}</h1>
+
+                    {% if user.is_authenticated %}
+                        {% is_favorited user ad as fav %}
+                        <form method="post"
+                              action="{% url 'ads:favorite_toggle' ad.slug %}"
+                              class="fav-form">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    class="fav-btn {% if fav %}is-active{% endif %}"
+                                    aria-label="В избранное">
+                                <svg class="fav-icon" viewBox="0 0 24 24"
+                                     fill="{% if fav %}currentColor{% else %}none{% endif %}"
+                                     stroke="currentColor" stroke-width="1.8">
+                                    <path d="M12 21s-7.5-4.8-9.6-9.3C.6 8.3 3 4.5 6.6 4.5c2 0 3.5 1.1 4.4 2.3.9-1.2 2.4-2.3 4.4-2.3 3.6 0 6 3.8 4.2 7.2C19.5 16.2 12 21 12 21z"
+                                          stroke-linejoin="round"/>
+                                </svg>
+                                <span class="fav-label">
+                                    {% if fav %}В избранном{% else %}В избранное{% endif %}
+                                </span>
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+
+                <div class="detail-meta">
+                    {{ ad.category.name|default:"Без категории" }}
+                    {% if ad.city %} · {{ ad.city }}{% endif %}
+                    · {{ ad.created_at|date:"d.m.Y" }}
+                </div>
+
+                <div class="detail-price">{{ ad.price }} ₽</div>
+
+                <div class="detail-desc">{{ ad.description|linebreaks }}</div>
+
+                <div class="detail-contact">
+                    <div><strong>Телефон:</strong> {{ ad.phone }}</div>
+                    <div><strong>Автор:</strong> {{ ad.author.username }}</div>
+                    <div><strong>Просмотров:</strong> {{ ad.views }}</div>
+                </div>
+
+                <!-- ===== Действия автора ===== -->
+                {% if user == ad.author %}
+                    <div class="form-actions">
+                        <a href="{% url 'ads:ad_edit' ad.slug %}" class="btn-secondary">
+                            Редактировать
+                        </a>
+                        <a href="{% url 'ads:ad_delete' ad.slug %}"
+                           class="btn-secondary" style="color:#c0392b;">
+                            Удалить
+                        </a>
+                    </div>
+                {% endif %}
+
+                <!-- ===== Действия модератора ===== -->
+                {% if user.is_staff and user != ad.author %}
+                    <div class="form-actions">
+                        <form method="post"
+                              action="{% url 'ads:ban_user' ad.author.pk %}"
+                              style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="reason" value="rules">
+                            <button type="submit" class="btn-ban">
+                                🚫 Забанить автора
+                            </button>
+                        </form>
+                    </div>
+                {% endif %}
+
+                <!-- ===== Статус (для автора и админов) ===== -->
+                {% if user == ad.author or user.is_staff %}
+                    <div class="detail-status">
+                        {% if ad.status == 'published' %}
+                            <span class="status-badge status-published">Опубликовано</span>
+                        {% elif ad.status == 'draft' %}
+                            <span class="status-badge status-draft">Черновик</span>
+                        {% else %}
+                            <span class="status-badge status-archived">В архиве</span>
+                        {% endif %}
+
+                        {% if ad.is_moderated %}
+                            <span class="status-badge status-approved">✓ Проверено</span>
+                        {% else %}
+                            <span class="status-badge status-pending">На модерации</span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+
+        <!-- ===== Похожие объявления ===== -->
+        {% if similar %}
+            <section class="similar-block">
+                <h2 class="section-title">Похожие объявления</h2>
+                <div class="ads-grid">
+                    {% for s in similar %}
+                        <div class="ad-card">
+                            <a href="{{ s.get_absolute_url }}" class="ad-link">
+                                <div class="ad-image">
+                                    {% if s.image %}
+                                        <img src="{{ s.image.url }}" alt="{{ s.title }}">
+                                    {% else %}
+                                        <div class="ad-image-placeholder"></div>
+                                    {% endif %}
+                                </div>
+                                <div class="ad-price">{{ s.price }} ₽</div>
+                                <div class="ad-title">{{ s.title }}</div>
+                                {% if s.city %}
+                                    <div class="ad-meta">{{ s.city }}</div>
+                                {% endif %}
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('.fav-form');
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const btn = form.querySelector('.fav-btn');
+        const icon = form.querySelector('.fav-icon');
+        const label = form.querySelector('.fav-label');
+
+        const res = await fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
+        if (!res.ok) return;
+
+        const data = await res.json();
+        btn.classList.toggle('is-active', data.is_favorited);
+        icon.setAttribute('fill', data.is_favorited ? 'currentColor' : 'none');
+        label.textContent = data.is_favorited ? 'В избранном' : 'В избранное';
+
+        const navLink = document.querySelector('a[href*="/favorites/"]');
+        if (navLink) {
+            let badge = navLink.querySelector('.badge-count');
+            if (data.favorites_count > 0) {
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'badge-count';
+                    navLink.appendChild(document.createTextNode(' '));
+                    navLink.appendChild(badge);
+                }
+                badge.textContent = data.favorites_count;
+            } else if (badge) {
+                badge.remove();
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

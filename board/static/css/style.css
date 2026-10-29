@@ -290,18 +290,6 @@ img { max-width: 100%; display: block; }
     background: transparent;
 }
 
-.sidebar-title {
-    display: block;
-    background: var(--green-900);
-    color: #fff;
-    font-weight: 600;
-    font-size: 15px;
-    padding: 14px 18px;
-    border-radius: var(--radius);
-    margin-bottom: 8px;
-    cursor: pointer;
-}
-
 .rubric-list {
     list-style: none;
     margin: 0;

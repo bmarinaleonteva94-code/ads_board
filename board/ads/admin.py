@@ -4,10 +4,15 @@ from .models import Ad, Category, UserBan
 from django.utils import timezone
 from datetime import timedelta
 
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import User
+
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'ads_count')
+    list_display = ('name', 'slug', 'order', 'ads_count')
+    list_editable = ('order',)        
+    ordering = ('order', 'name')
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ('name',)
 
@@ -108,12 +113,12 @@ class UserBanAdmin(admin.ModelAdmin):
     def status_badge(self, obj):
         if obj.is_active:
             if obj.is_permanent:
-                return format_html('<span style="color:#c0392b;font-weight:700;">🔴 Навсегда</span>')
+                return '🔴 Навсегда'
             return format_html(
                 '<span style="color:#e67e22;font-weight:600;">🟠 до {}</span>',
                 obj.expires_at.strftime('%d.%m.%Y %H:%M')
             )
-        return format_html('<span style="color:#27ae60;">🟢 истёк</span>')
+        return '🟢 истёк'
 
     @admin.action(description='Забанить на 7 дней')
     def ban_7_days(self, request, queryset):
@@ -140,3 +145,10 @@ class UserBanAdmin(admin.ModelAdmin):
             ban.expires_at = expires
             ban.save()
         self.message_user(request, f'Обновлено: {queryset.count()}')
+
+
+
+admin.site.unregister(User)
+@admin.register(User)
+class CustomUserAdmin(BaseUserAdmin):
+    search_fields = ('username', 'email')

@@ -3,7 +3,6 @@ from .models import Favorite, Message
 
 
 def counters(request):
-    """Глобальные счётчики для шапки сайта."""
     if not request.user.is_authenticated:
         return {}
 

@@ -10,16 +10,21 @@ from django.db.models import Q
 
 class Category(models.Model):
     name = models.CharField('Название', max_length=100, unique=True)
-    slug = models.SlugField('URL', max_length=100, unique=True, blank=True)
+    slug = models.SlugField('URL', max_length=100, unique=True, blank=True, allow_unicode=True)
+    order = models.PositiveIntegerField(
+        'Порядок', default=0,
+        help_text='Чем меньше число — тем выше в списке. 0 — в конце.'
+    )
 
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
-        ordering = ['name']
+        ordering = ['order', 'name']   
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name, allow_unicode=True)
+            from django.utils.text import slugify
+            self.slug = slugify(self.name, allow_unicode=True) or 'category'
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -124,6 +129,9 @@ class UserBan(models.Model):
 
     def __str__(self):
         return f'Бан: {self.user.username}'
+    
+    def get_absolute_url(self):
+        return reverse('admin:ads_userban_change', args=[self.pk])
 
     @property
     def is_active(self):
@@ -143,7 +151,6 @@ class UserBan(models.Model):
         if self.is_permanent:
             self.expires_at = None
         super().save(*args, **kwargs)
-        # Автоматически снимаем с публикации все объявления
         if self.is_active:
             Ad.objects.filter(author=self.user).update(
                 status='archived', is_moderated=False
@@ -151,7 +158,6 @@ class UserBan(models.Model):
 
 
 class Favorite(models.Model):
-    """Объявление в избранном у пользователя."""
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='favorites'
     )
@@ -167,7 +173,6 @@ class Favorite(models.Model):
 
 
 class Message(models.Model):
-    """Личное сообщение между пользователями (по объявлению)."""
     sender = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='sent_messages'
     )

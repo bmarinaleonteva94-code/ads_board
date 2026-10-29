@@ -41,13 +41,13 @@
 
         <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="sidebar-title">Все рубрики</div>
-            <ul class="rubric-list">
+            <ul class="rubric-list" style="margin-top: 0;"> 
                 <li class="rubric-item {% if not category_slug %}active{% endif %}">
                     <a href="?{% if query %}q={{ query }}&{% endif %}{% if city %}city={{ city }}&{% endif %}">
                         <span>Все объявления</span>
                     </a>
                 </li>
+
                 {% for cat in categories %}
                     <li class="rubric-item {% if cat.slug == category_slug %}active{% endif %}">
                         <a href="?category={{ cat.slug }}{% if query %}&q={{ query }}{% endif %}{% if city %}&city={{ city }}{% endif %}">

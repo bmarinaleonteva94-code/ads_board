@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load ads_extras %}
 {% block title %}Купить, снять, найти мастера{% endblock %}
 
 {% block content %}
@@ -32,7 +33,6 @@
             <input type="hidden" name="sort" value="{{ sort }}">
 
             <button type="submit" class="btn-search">Найти</button>
-            
         </form>
     </section>
 
@@ -41,7 +41,7 @@
 
         <!-- Sidebar -->
         <aside class="sidebar">
-            <ul class="rubric-list" style="margin-top: 0;"> 
+            <ul class="rubric-list" style="margin-top: 0;">
                 <li class="rubric-item {% if not category_slug %}active{% endif %}">
                     <a href="?{% if query %}q={{ query }}&{% endif %}{% if city %}city={{ city }}&{% endif %}">
                         <span>Все объявления</span>
@@ -91,20 +91,34 @@
             <!-- Сетка карточек -->
             <div class="ads-grid">
                 {% for ad in page_obj %}
-                    <a href="{{ ad.get_absolute_url }}" class="ad-card">
-                        <div class="ad-image">
-                            {% if ad.image %}
-                                <img src="{{ ad.image.url }}" alt="{{ ad.title }}">
-                            {% else %}
-                                <div class="ad-image-placeholder"></div>
+                    <div class="ad-card-wrap">
+                        <a href="{{ ad.get_absolute_url }}" class="ad-card">
+                            <div class="ad-image">
+                                {% if ad.image %}
+                                    <img src="{{ ad.image.url }}" alt="{{ ad.title }}">
+                                {% else %}
+                                    <div class="ad-image-placeholder"></div>
+                                {% endif %}
+                            </div>
+                            <div class="ad-price">{{ ad.price }} ₽</div>
+                            <div class="ad-title">{{ ad.title }}</div>
+                            {% if ad.city %}
+                                <div class="ad-meta">{{ ad.city }}</div>
                             {% endif %}
-                        </div>
-                        <div class="ad-price">{{ ad.price }} ₽</div>
-                        <div class="ad-title">{{ ad.title }}</div>
-                        {% if ad.city %}
-                            <div class="ad-meta">{{ ad.city }}</div>
+                        </a>
+
+                        {% if user.is_authenticated %}
+                            {% is_favorited user ad as fav %}
+                            <form method="post" action="{% url 'ads:favorite_toggle' ad.slug %}" class="fav-form fav-form-overlay">
+                                {% csrf_token %}
+                                <button type="submit" class="fav-mini {% if fav %}is-active{% endif %}" aria-label="В избранное">
+                                    <svg viewBox="0 0 24 24" fill="{% if fav %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 21s-7.5-4.8-9.6-9.3C.6 8.3 3 4.5 6.6 4.5c2 0 3.5 1.1 4.4 2.3.9-1.2 2.4-2.3 4.4-2.3 3.6 0 6 3.8 4.2 7.2C19.5 16.2 12 21 12 21z" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                            </form>
                         {% endif %}
-                    </a>
+                    </div>
                 {% empty %}
                     <div class="empty-state" style="grid-column: 1/-1;">
                         <h3>Ничего не найдено</h3>
@@ -120,7 +134,7 @@
                         <a href="?page={{ page_obj.previous_page_number }}&{{ querystring }}">←</a>
                     {% endif %}
 
-                    {% for num in page_obj.paginator.page_range %}
+                    {% for num in page_obj.paginator.num_pages|make_list %}
                         {% if num == page_obj.number %}
                             <span class="current">{{ num }}</span>
                         {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} 
@@ -137,5 +151,3 @@
     </div>
 </div>
 {% endblock %}
-
-                           

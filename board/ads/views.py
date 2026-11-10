@@ -1,26 +1,26 @@
+from datetime import timedelta
+
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView as DjangoLoginView
 from django.core.paginator import Paginator
 from django.db.models import F, Q
-from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse_lazy
-from django.views.generic import CreateView
-
-from .forms import AdForm, RegisterForm
-from .models import Ad, Category, User, UserBan, Favorite, Message, Ad
-
-from django.contrib.admin.views.decorators import staff_member_required
-from django.utils import timezone
-from datetime import timedelta
- 
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-# --- Список объявлений ---
+from .forms import AdForm, RegisterForm
+from .models import Ad, Category, Favorite, Message, User, UserBan
+
+
+# ============================================================
+#  СПИСОК ОБЪЯВЛЕНИЙ
+# ============================================================
 def ad_list(request):
+    """Лента опубликованных объявлений с поиском, фильтрами и пагинацией."""
     ads = Ad.objects.published().select_related('category', 'author')
 
     q = request.GET.get('q', '').strip()
@@ -69,12 +69,17 @@ def ad_list(request):
     })
 
 
-# --- Детальная страница ---
+# ============================================================
+#  ДЕТАЛЬНАЯ СТРАНИЦА ОБЪЯВЛЕНИЯ
+# ============================================================
 def ad_detail(request, slug):
-    ad = get_object_or_404(Ad.objects.select_related('category', 'author'), slug=slug)
+    """Страница объявления. Увеличивает счётчик просмотров."""
+    ad = get_object_or_404(
+        Ad.objects.select_related('category', 'author'), slug=slug
+    )
 
     allowed = (
-        ad.status == 'published' and ad.is_moderated
+        (ad.status == 'published' and ad.is_moderated)
         or request.user == ad.author
         or request.user.is_staff
     )
@@ -85,71 +90,102 @@ def ad_detail(request, slug):
     Ad.objects.filter(pk=ad.pk).update(views=F('views') + 1)
     ad.refresh_from_db()
 
+    similar = (
+        Ad.objects.published()
+        .filter(category=ad.category)
+        .exclude(pk=ad.pk)[:4]
+        if ad.category else Ad.objects.none()
+    )
+
     return render(request, 'ads/ad_detail.html', {
         'ad': ad,
-        'similar': Ad.objects.published().filter(category=ad.category).exclude(pk=ad.pk)[:4]
-            if ad.category else Ad.objects.none(),
+        'similar': similar,
     })
 
 
-# --- Создание ---
+# ============================================================
+#  СОЗДАНИЕ / РЕДАКТИРОВАНИЕ / УДАЛЕНИЕ ОБЪЯВЛЕНИЯ
+# ============================================================
 @login_required
 def ad_create(request):
+    """Создание объявления. Отправляет его на модерацию."""
     if request.method == 'POST':
         form = AdForm(request.POST, request.FILES)
         if form.is_valid():
             ad = form.save(commit=False)
             ad.author = request.user
             ad.status = 'published'
-            ad.is_moderated = False  # ждёт модерации
+            ad.is_moderated = False  
             ad.save()
             messages.success(request, 'Объявление отправлено на модерацию')
             return redirect('ads:my_ads')
     else:
         form = AdForm()
-    return render(request, 'ads/ad_form.html', {'form': form, 'title': 'Новое объявление'})
+
+    return render(request, 'ads/ad_form.html', {
+        'form': form,
+        'title': 'Новое объявление',
+    })
 
 
-# --- Редактирование ---
 @login_required
 def ad_edit(request, slug):
+    """Редактирование объявления. После правок — снова на модерацию."""
     ad = get_object_or_404(Ad, slug=slug, author=request.user)
+
     if request.method == 'POST':
         form = AdForm(request.POST, request.FILES, instance=ad)
         if form.is_valid():
             ad = form.save(commit=False)
-            # после правки снова на модерацию
-            ad.is_moderated = False
+            ad.is_moderated = False  
             ad.save()
             messages.success(request, 'Объявление обновлено и отправлено на модерацию')
             return redirect('ads:my_ads')
     else:
         form = AdForm(instance=ad)
-    return render(request, 'ads/ad_form.html', {'form': form, 'title': 'Редактировать'})
+
+    return render(request, 'ads/ad_form.html', {
+        'form': form,
+        'title': 'Редактировать',
+    })
 
 
-# --- Удаление ---
 @login_required
 def ad_delete(request, slug):
+    """Удаление объявления с подтверждением."""
     ad = get_object_or_404(Ad, slug=slug, author=request.user)
+
     if request.method == 'POST':
         ad.delete()
         messages.success(request, 'Объявление удалено')
         return redirect('ads:my_ads')
+
     return render(request, 'ads/ad_confirm_delete.html', {'ad': ad})
 
 
-# --- Мои объявления ---
+# ============================================================
+#  ЛИЧНЫЙ КАБИНЕТ
+# ============================================================
 @login_required
 def my_ads(request):
-    ads = Ad.objects.filter(author=request.user).select_related('category').order_by('-created_at')
+    """Все объявления текущего пользователя."""
+    ads = (
+        Ad.objects
+        .filter(author=request.user)
+        .select_related('category')
+        .order_by('-created_at')
+    )
     return render(request, 'ads/my_ads.html', {'ads': ads})
 
 
-# --- Регистрация ---
+# ============================================================
+#  РЕГИСТРАЦИЯ / ВХОД / ВЫХОД
+# ============================================================
 def register_view(request):
+    """Регистрация нового пользователя."""
     if request.user.is_authenticated:
         return redirect('ads:ad_list')
+
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
@@ -159,52 +195,50 @@ def register_view(request):
             return redirect('ads:ad_list')
     else:
         form = RegisterForm()
+
     return render(request, 'registration/register.html', {'form': form})
 
 
-# --- Вход/выход ---
 class LoginView(DjangoLoginView):
+    """Страница входа (наследник стандартной LoginView Django)."""
     template_name = 'registration/login.html'
     redirect_authenticated_user = True
 
 
 def logout_view(request):
+    """Выход пользователя."""
     logout(request)
     messages.info(request, 'Вы вышли из системы')
     return redirect('ads:ad_list')
 
 
+# ============================================================
+#  БЛОКИРОВКА ПОЛЬЗОВАТЕЛЕЙ
+# ============================================================
 def banned_view(request):
-    """Страница 'вы забанены'. Показывает причину и срок (если есть)."""
-    ban = None
-    if hasattr(request, 'session'):
-        pass
+    """Страница 'вы забанены'. Показывает причину и срок."""
     user_id = request.session.pop('banned_user_id', None)
-    if user_id:
-        ban = UserBan.objects.filter(user_id=user_id).first()
+    ban = UserBan.objects.filter(user_id=user_id).first() if user_id else None
     return render(request, 'ads/banned.html', {'ban': ban})
 
 
 @staff_member_required
-def ban_user(request, user_id, days=None):
-    """Забанить пользователя. days=None — навсегда."""
+def ban_user(request, user_id):
+    """Забанить пользователя навсегда."""
     target = get_object_or_404(User, pk=user_id)
+
     if target.is_staff or target == request.user:
         messages.error(request, 'Нельзя забанить этого пользователя')
-        return redirect('ads:my_ads')
+        return redirect('ads:ad_list')
 
-    expires = None
-    if days:
-        expires = timezone.now() + timedelta(days=int(days))
-
-    ban, created = UserBan.objects.update_or_create(
+    UserBan.objects.update_or_create(
         user=target,
         defaults={
             'reason': request.POST.get('reason', 'rules'),
             'comment': request.POST.get('comment', ''),
             'banned_by': request.user,
-            'expires_at': expires,
-            'is_permanent': expires is None,
+            'expires_at': None,
+            'is_permanent': True,
         }
     )
     messages.success(request, f'Пользователь {target.username} забанен')
@@ -219,9 +253,12 @@ def unban_user(request, user_id):
     return redirect('ads:ad_list')
 
 
-
+# ============================================================
+#  ИЗБРАННОЕ
+# ============================================================
 @login_required
 def favorites(request):
+    """Список избранных объявлений пользователя."""
     items = (
         Favorite.objects
         .filter(user=request.user)
@@ -231,11 +268,10 @@ def favorites(request):
     return render(request, 'ads/favorites.html', {'items': items})
 
 
-
 @require_POST
 @login_required
 def favorite_toggle(request, slug):
-    """Добавить/убрать объявление из избранного."""
+    """Добавить/убрать объявление из избранного (AJAX + fallback)."""
     ad = get_object_or_404(Ad, slug=slug)
     fav, created = Favorite.objects.get_or_create(user=request.user, ad=ad)
 
@@ -258,9 +294,12 @@ def favorite_toggle(request, slug):
     return redirect(request.META.get('HTTP_REFERER', ad.get_absolute_url()))
 
 
-
+# ============================================================
+#  СООБЩЕНИЯ
+# ============================================================
 @login_required
 def messages_view(request):
+    """Список всех сообщений пользователя (входящие и исходящие)."""
     qs = (
         Message.objects
         .filter(Q(sender=request.user) | Q(recipient=request.user))
@@ -271,4 +310,3 @@ def messages_view(request):
     Message.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
 
     return render(request, 'ads/messages.html', {'messages_list': qs})
-

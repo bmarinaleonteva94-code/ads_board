@@ -1,8 +1,7 @@
-from django.db.models import Count
 from .models import Favorite, Message
 
-
 def counters(request):
+    """Глобальные счётчики для шапки сайта (избранное и непрочитанные сообщения)."""
     if not request.user.is_authenticated:
         return {}
 

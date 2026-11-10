@@ -1,10 +1,13 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from .models import Ad
 
 
 class AdForm(forms.ModelForm):
+    MAX_IMAGE_SIZE = 5 * 1024 * 1024
+
     class Meta:
         model = Ad
         fields = ('title', 'description', 'price', 'category', 'image', 'phone', 'city')
@@ -13,7 +16,10 @@ class AdForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
             'price': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': 0}),
             'category': forms.Select(attrs={'class': 'form-select'}),
-            'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'image': forms.ClearableFileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*',  
+            }),
             'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+7...'}),
             'city': forms.TextInput(attrs={'class': 'form-control'}),
         }
@@ -24,9 +30,30 @@ class AdForm(forms.ModelForm):
             raise forms.ValidationError('Цена не может быть отрицательной')
         return price
 
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+
+        if not image:
+            return image
+
+        if image.size > self.MAX_IMAGE_SIZE:
+            size_mb = image.size / 1024 / 1024
+            raise forms.ValidationError(
+                f'Файл слишком большой ({size_mb:.1f} МБ). '
+                f'Максимальный размер — 5 МБ.'
+            )
+
+        if hasattr(image, 'content_type') and not image.content_type.startswith('image/'):
+            raise forms.ValidationError('Можно загружать только изображения (JPG, PNG, GIF, WEBP).')
+
+        return image
+
 
 class RegisterForm(UserCreationForm):
-    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'you@example.com'})
+    )
 
     class Meta:
         model = User
@@ -38,8 +65,16 @@ class RegisterForm(UserCreationForm):
             if name != 'email':
                 field.widget.attrs.setdefault('class', 'form-control')
 
+    def clean_username(self):
+        """Проверка уникальности логина (без учёта регистра)."""
+        username = self.cleaned_data['username']
+        if User.objects.filter(username__iexact=username).exists():
+            raise forms.ValidationError('Пользователь с таким именем уже существует.')
+        return username
+
     def clean_email(self):
+        """Проверка уникальности email (без учёта регистра)."""
         email = self.cleaned_data['email']
         if User.objects.filter(email__iexact=email).exists():
-            raise forms.ValidationError('Пользователь с таким email уже существует')
+            raise forms.ValidationError('Пользователь с таким email уже существует.')
         return email

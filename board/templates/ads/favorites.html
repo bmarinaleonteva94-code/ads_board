@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Избранное — Рядом{% endblock %}
+{% block title %}Избранное{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -11,20 +11,32 @@
         {% if items %}
             <div class="ads-grid">
                 {% for fav in items %}
-                    <a href="{{ fav.ad.get_absolute_url }}" class="ad-card">
-                        <div class="ad-image">
-                            {% if fav.ad.image %}
-                                <img src="{{ fav.ad.image.url }}" alt="{{ fav.ad.title }}">
-                            {% else %}
-                                <div class="ad-image-placeholder"></div>
+                    <div class="ad-card-wrap">
+                        <a href="{{ fav.ad.get_absolute_url }}" class="ad-card">
+                            <div class="ad-image">
+                                {% if fav.ad.image %}
+                                    <img src="{{ fav.ad.image.url }}" alt="{{ fav.ad.title }}">
+                                {% else %}
+                                    <div class="ad-image-placeholder"></div>
+                                {% endif %}
+                            </div>
+                            <div class="ad-price">{{ fav.ad.price }} ₽</div>
+                            <div class="ad-title">{{ fav.ad.title }}</div>
+                            {% if fav.ad.city %}
+                                <div class="ad-meta">{{ fav.ad.city }}</div>
                             {% endif %}
-                        </div>
-                        <div class="ad-price">{{ fav.ad.price }} ₽</div>
-                        <div class="ad-title">{{ fav.ad.title }}</div>
-                        {% if fav.ad.city %}
-                            <div class="ad-meta">{{ fav.ad.city }}</div>
-                        {% endif %}
-                    </a>
+                        </a>
+
+                        <!-- Кнопка удаления из избранного -->
+                        <form method="post" action="{% url 'ads:favorite_toggle' fav.ad.slug %}" class="fav-form fav-form-overlay">
+                            {% csrf_token %}
+                            <button type="submit" class="fav-mini is-active" aria-label="Убрать из избранного">
+                                <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 21s-7.5-4.8-9.6-9.3C.6 8.3 3 4.5 6.6 4.5c2 0 3.5 1.1 4.4 2.3.9-1.2 2.4-2.3 4.4-2.3 3.6 0 6 3.8 4.2 7.2C19.5 16.2 12 21 12 21z" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
                 {% endfor %}
             </div>
         {% else %}

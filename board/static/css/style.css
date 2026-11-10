@@ -1,4 +1,6 @@
-/* ============ Переменные ============ */
+/* ============================================================
+   ПЕРЕМЕННЫЕ
+   ============================================================ */
 :root {
     --green-900: #14382b;
     --green-800: #1a4635;
@@ -26,7 +28,9 @@
     --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* ============ Reset ============ */
+/* ============================================================
+   RESET
+   ============================================================ */
 *, *::before, *::after { box-sizing: border-box; }
 
 html, body {
@@ -49,7 +53,9 @@ img { max-width: 100%; display: block; }
     padding: 0 24px;
 }
 
-/* ============ Header ============ */
+/* ============================================================
+   HEADER
+   ============================================================ */
 .site-header {
     background: var(--surface);
     border-bottom: 1px solid var(--line);
@@ -67,7 +73,6 @@ img { max-width: 100%; display: block; }
     gap: 32px;
 }
 
-/* Логотип */
 .logo {
     display: flex;
     align-items: center;
@@ -78,8 +83,6 @@ img { max-width: 100%; display: block; }
     letter-spacing: -.02em;
 }
 
-
-/* Навигация */
 .main-nav {
     display: flex;
     gap: 28px;
@@ -111,7 +114,6 @@ img { max-width: 100%; display: block; }
     font-weight: 700;
 }
 
-/* Правые действия */
 .header-actions {
     display: flex;
     align-items: center;
@@ -133,7 +135,9 @@ img { max-width: 100%; display: block; }
 }
 .user-name { color: var(--text); font-weight: 500; }
 
-/* Кнопка-акцент */
+/* ============================================================
+   КНОПКИ
+   ============================================================ */
 .btn-primary {
     display: inline-flex;
     align-items: center;
@@ -153,20 +157,97 @@ img { max-width: 100%; display: block; }
 .btn-primary:hover { background: var(--green-700); }
 .btn-primary:active { transform: translateY(1px); }
 
-/* ============ Тосты ============ */
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    padding: 0 22px;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    font-family: var(--font);
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all .15s;
+}
+.btn-secondary:hover { border-color: var(--text-3); background: #fafaf8; }
+
+.btn-danger {
+    background: #c0392b;
+    color: #fff;
+    border: none;
+}
+.btn-danger:hover { background: #a12f24; }
+
+.btn-sm {
+    display: inline-flex;
+    align-items: center;
+    height: 32px;
+    padding: 0 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--line);
+    background: var(--surface);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .15s;
+    color: var(--text);
+}
+.btn-sm:hover { border-color: var(--green-900); color: var(--green-900); }
+.btn-sm.danger:hover { border-color: #c0392b; color: #c0392b; }
+
+.btn-ban {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0 12px;
+    border-radius: var(--radius-sm);
+    background: #fdecec;
+    color: #c0392b;
+    border: 1px solid #f5c2c2;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+}
+.btn-ban:hover { background: #c0392b; color: #fff; border-color: #c0392b; }
+
+/* ============================================================
+   УВЕДОМЛЕНИЯ (ТОСТЫ)
+   ============================================================ */
+.toasts {
+    position: fixed;
+    top: 80px;
+    right: 24px;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 340px;
+}
+
 .toast-message {
-    margin: 16px 0;
     padding: 12px 16px;
     border-radius: var(--radius);
     background: var(--green-50);
     border: 1px solid #d6e4dc;
     color: var(--green-900);
     font-weight: 500;
+    font-size: 14px;
+    box-shadow: var(--shadow-lg);
 }
-.toast-error { background: #fdecec; border-color: #f5c2c2; color: #8a1f1f; }
+.toast-error   { background: #fdecec; border-color: #f5c2c2; color: #8a1f1f; }
 .toast-warning { background: #fff6e5; border-color: #f5dcae; color: #7a4e00; }
+.toast-success { background: #d9efe3; border-color: #b8dec9; color: #17603f; }
 
-/* ============ Hero ============ */
+/* ============================================================
+   HERO + ПОИСК
+   ============================================================ */
 .hero {
     padding: 56px 0 32px;
 }
@@ -177,11 +258,9 @@ img { max-width: 100%; display: block; }
     font-weight: 800;
     letter-spacing: -.03em;
     color: var(--text);
-    /* max-width: 700px; */
     margin: 0 0 32px;
 }
 
-/* Поисковая строка */
 .search-bar {
     display: flex;
     align-items: center;
@@ -276,7 +355,9 @@ img { max-width: 100%; display: block; }
 }
 .btn-post-free:hover { color: var(--green-700); }
 
-/* ============ Основная сетка ============ */
+/* ============================================================
+   ОСНОВНАЯ СЕТКА
+   ============================================================ */
 .layout {
     display: grid;
     grid-template-columns: 260px 1fr;
@@ -285,10 +366,10 @@ img { max-width: 100%; display: block; }
     align-items: start;
 }
 
-/* ============ Sidebar — рубрики ============ */
-.sidebar {
-    background: transparent;
-}
+/* ============================================================
+   SIDEBAR — РУБРИКИ
+   ============================================================ */
+.sidebar { background: transparent; }
 
 .rubric-list {
     list-style: none;
@@ -316,7 +397,9 @@ img { max-width: 100%; display: block; }
     font-weight: 500;
 }
 
-/* ============ Правая колонка ============ */
+/* ============================================================
+   ПРАВАЯ КОЛОНКА
+   ============================================================ */
 .content-panel {
     background: var(--surface);
     border: 1px solid var(--line);
@@ -362,7 +445,9 @@ img { max-width: 100%; display: block; }
 }
 .sort-select:hover { border-color: var(--text-3); }
 
-/* ============ Сетка карточек ============ */
+/* ============================================================
+   СЕТКА КАРТОЧЕК
+   ============================================================ */
 .ads-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -377,8 +462,9 @@ img { max-width: 100%; display: block; }
     transition: transform .15s;
 }
 .ad-card:hover { transform: translateY(-2px); }
-
 .ad-card:hover .ad-title { color: var(--green-700); }
+
+.ad-link { display: block; color: inherit; text-decoration: none; }
 
 .ad-image {
     position: relative;
@@ -433,7 +519,7 @@ img { max-width: 100%; display: block; }
     transition: color .15s;
     display: -webkit-box;
     /* -webkit-line-clamp: 2; */
-    -webkit-box-orient: vertical; 
+    -webkit-box-orient: vertical;
     overflow: hidden;
 }
 
@@ -446,7 +532,9 @@ img { max-width: 100%; display: block; }
     align-items: center;
 }
 
-/* ============ Пустой стейт ============ */
+/* ============================================================
+   ПУСТОЙ СТЕЙТ
+   ============================================================ */
 .empty-state {
     text-align: center;
     padding: 60px 20px;
@@ -454,7 +542,9 @@ img { max-width: 100%; display: block; }
 }
 .empty-state h3 { color: var(--text); margin: 0 0 8px; }
 
-/* ============ Пагинация ============ */
+/* ============================================================
+   ПАГИНАЦИЯ
+   ============================================================ */
 .pagination {
     display: flex;
     justify-content: center;
@@ -483,7 +573,9 @@ img { max-width: 100%; display: block; }
     color: #fff;
 }
 
-/* ============ Footer ============ */
+/* ============================================================
+   FOOTER
+   ============================================================ */
 .site-footer {
     border-top: 1px solid var(--line);
     background: var(--surface);
@@ -500,7 +592,9 @@ img { max-width: 100%; display: block; }
 .footer-links { display: flex; gap: 24px; }
 .footer-links a:hover { color: var(--green-700); }
 
-/* ============ Формы (создать/редактировать) ============ */
+/* ============================================================
+   ФОРМЫ
+   ============================================================ */
 .form-page {
     max-width: 720px;
     margin: 32px auto 64px;
@@ -563,31 +657,6 @@ textarea.form-control {
     margin-top: 4px;
 }
 
-.btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 44px;
-    padding: 0 22px;
-    background: var(--surface);
-    color: var(--text);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    font-family: var(--font);
-    font-weight: 600;
-    font-size: 15px;
-    cursor: pointer;
-    transition: all .15s;
-}
-.btn-secondary:hover { border-color: var(--text-3); background: #fafaf8; }
-
-.btn-danger {
-    background: #c0392b;
-    color: #fff;
-    border: none;
-}
-.btn-danger:hover { background: #a12f24; }
-
 .form-actions {
     display: flex;
     gap: 12px;
@@ -596,7 +665,9 @@ textarea.form-control {
     border-top: 1px solid var(--line);
 }
 
-/* ============ Авторизация ============ */
+/* ============================================================
+   АВТОРИЗАЦИЯ
+   ============================================================ */
 .auth-page {
     max-width: 440px;
     margin: 60px auto;
@@ -621,7 +692,9 @@ textarea.form-control {
 }
 .auth-footer a { color: var(--green-700); font-weight: 500; }
 
-/* ============ Детальная страница ============ */
+/* ============================================================
+   ДЕТАЛЬНАЯ СТРАНИЦА
+   ============================================================ */
 .ad-detail {
     max-width: 1080px;
     margin: 32px auto 64px;
@@ -674,7 +747,77 @@ textarea.form-control {
 }
 .ad-detail .detail-contact strong { font-weight: 600; }
 
-/* ============ Мои объявления (таблица) ============ */
+/* Блок статусов */
+.detail-status {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+}
+
+/* Блок «Похожие» */
+.similar-block { margin-top: 40px; }
+
+.section-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 20px;
+    letter-spacing: -.01em;
+}
+
+/* ============================================================
+   КНОПКА «В ИЗБРАННОЕ»
+   ============================================================ */
+.detail-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+.detail-head h1 { margin: 0; flex: 1; }
+
+.fav-form { margin: 0; flex-shrink: 0; }
+
+.fav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 44px;
+    padding: 0 18px;
+    border-radius: var(--radius);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+}
+.fav-btn:hover { border-color: #e26a6a; color: #e26a6a; }
+
+.fav-icon {
+    width: 20px;
+    height: 20px;
+    transition: transform .15s;
+}
+.fav-btn:hover .fav-icon { transform: scale(1.1); }
+
+.fav-btn.is-active {
+    background: #fdecec;
+    border-color: #f5c2c2;
+    color: #c0392b;
+}
+.fav-btn.is-active:hover {
+    background: #c0392b;
+    border-color: #c0392b;
+    color: #fff;
+}
+
+/* ============================================================
+   МОИ ОБЪЯВЛЕНИЯ (ТАБЛИЦА)
+   ============================================================ */
 .my-ads-page { max-width: 1080px; margin: 32px auto 64px; }
 .my-ads-head {
     display: flex;
@@ -734,26 +877,12 @@ textarea.form-control {
 .status-approved  { background: #d9efe3; color: #17603f; }
 .status-pending   { background: #fdf1d6; color: #7a4e00; }
 
-.btn-sm {
-    display: inline-flex;
-    align-items: center;
-    height: 32px;
-    padding: 0 12px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--line);
-    background: var(--surface);
-    font-family: var(--font);
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all .15s;
-    color: var(--text);
-}
-.btn-sm:hover { border-color: var(--green-900); color: var(--green-900); }
-.btn-sm.danger:hover { border-color: #c0392b; color: #c0392b; }
+.unread-row { background: #f2f8f4; }
+.unread-row td:first-child { font-weight: 600; }
 
-
-/* ============ Страница подтверждения удаления ============ */
+/* ============================================================
+   СТРАНИЦА УДАЛЕНИЯ
+   ============================================================ */
 .delete-card {
     text-align: center;
     padding: 40px 36px 32px;
@@ -787,7 +916,6 @@ textarea.form-control {
     line-height: 1.5;
 }
 
-/* Превью объявления */
 .delete-preview {
     display: flex;
     align-items: center;
@@ -836,7 +964,6 @@ textarea.form-control {
     color: var(--text-3);
 }
 
-/* Кнопки на странице удаления */
 .delete-card .form-actions {
     justify-content: center;
     border-top: none;
@@ -844,33 +971,9 @@ textarea.form-control {
     margin-top: 20px;
 }
 
-
-/* ============ Адаптивность ============ */
-@media (max-width: 1024px) {
-    .layout { grid-template-columns: 220px 1fr; gap: 24px; }
-    .ads-grid { grid-template-columns: repeat(2, 1fr); }
-    .hero-title { font-size: 44px; }
-    .ad-detail-card { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 768px) {
-    .header-inner { flex-wrap: wrap; gap: 16px; padding: 12px 16px; }
-    .main-nav { display: none; }
-    .layout { grid-template-columns: 1fr; }
-    .ads-grid { grid-template-columns: 1fr; }
-    .hero-title { font-size: 32px; }
-    .search-bar { flex-wrap: wrap; padding: 8px; }
-    .search-input-wrap { width: 100%; }
-    .btn-search, .btn-post-free { flex: 1; }
-    .container { padding: 0 16px; }
-    .content-panel { padding: 16px; }
-    .ad-detail-card { padding: 16px; }
-    .form-card { padding: 24px 20px; }
-    .footer-inner { flex-direction: column; gap: 12px; }
-}
-
-
-/* ============ Страница бана ============ */
+/* ============================================================
+   СТРАНИЦА БАНА
+   ============================================================ */
 .ban-info {
     text-align: left;
     background: #f7f9f7;
@@ -900,7 +1003,7 @@ textarea.form-control {
     word-break: break-word;
 }
 
-/* ============ Баннер в шапке для админа ============ */
+/* Баннер в шапке для админа */
 .staff-bar {
     background: var(--green-900);
     color: #fff;
@@ -913,156 +1016,15 @@ textarea.form-control {
 }
 .staff-bar a { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
 
-/* Кнопка «Забанить» в карточке у админа */
-.btn-ban {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    height: 32px;
-    padding: 0 12px;
-    border-radius: var(--radius-sm);
-    background: #fdecec;
-    color: #c0392b;
-    border: 1px solid #f5c2c2;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all .15s;
-}
-.btn-ban:hover { background: #c0392b; color: #fff; border-color: #c0392b; }
-
-
-.unread-row { background: #f2f8f4; }
-.unread-row td:first-child { font-weight: 600; }
-
-
-/* ============ Кнопка «В избранное» ============ */
-.detail-head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 16px;
-}
-
-.detail-head h1 {
-    margin: 0;
-    flex: 1;
-}
-
-.fav-form { margin: 0; flex-shrink: 0; }
-
-.fav-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    height: 44px;
-    padding: 0 18px;
-    border-radius: var(--radius);
-    background: var(--surface);
-    border: 1px solid var(--line);
-    color: var(--text);
-    font-family: var(--font);
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all .15s;
-    white-space: nowrap;
-}
-
-.fav-btn:hover {
-    border-color: #e26a6a;
-    color: #e26a6a;
-}
-
-.fav-icon {
-    width: 20px;
-    height: 20px;
-    transition: transform .15s;
-}
-
-.fav-btn:hover .fav-icon { transform: scale(1.1); }
-
-/* Активное состояние — уже в избранном */
-.fav-btn.is-active {
-    background: #fdecec;
-    border-color: #f5c2c2;
-    color: #c0392b;
-}
-
-.fav-btn.is-active:hover {
-    background: #c0392b;
-    border-color: #c0392b;
-    color: #fff;
-}
-
-/* Мобильная адаптация */
-@media (max-width: 768px) {
-    .detail-head { flex-direction: column; align-items: stretch; }
-    .fav-btn { width: 100%; justify-content: center; }
-    .fav-label { display: inline; }
-}
-
-
-
-/* Обёртка карточки-ссылки */
-.ad-link { display: block; color: inherit; text-decoration: none; }
-
-/* Блок статусов */
-.detail-status {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-top: 16px;
-}
-
-/* Блок «Похожие» */
-.similar-block { margin-top: 40px; }
-
-.section-title {
-    font-size: 20px;
-    font-weight: 700;
-    margin: 0 0 20px;
-    letter-spacing: -.01em;
-}
-
-
-
-/* Тосты */
-.toasts {
-    position: fixed;
-    top: 80px;
-    right: 24px;
-    z-index: 999;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    max-width: 340px;
-}
-
-.toast-message {
-    padding: 12px 16px;
-    border-radius: var(--radius);
-    background: var(--green-50);
-    border: 1px solid #d6e4dc;
-    color: var(--green-900);
-    font-weight: 500;
-    font-size: 14px;
-    box-shadow: var(--shadow-lg);
-}
-
-.toast-error   { background: #fdecec; border-color: #f5c2c2; color: #8a1f1f; }
-.toast-warning { background: #fff6e5; border-color: #f5dcae; color: #7a4e00; }
-.toast-success { background: #d9efe3; border-color: #b8dec9; color: #17603f; }
-
-
-/* ============ Показать/скрыть пароль ============ */
+/* ============================================================
+   ПОКАЗАТЬ/СКРЫТЬ ПАРОЛЬ
+   ============================================================ */
 .password-wrap {
     position: relative;
     display: block;
 }
-
 .password-wrap input {
-    padding-right: 46px !important; 
+    padding-right: 46px !important;
 }
 
 .password-toggle {
@@ -1083,14 +1045,88 @@ textarea.form-control {
     transition: color .15s, background .15s;
     padding: 0;
 }
-
 .password-toggle:hover {
     color: var(--text);
     background: #f0f2f0;
 }
-
 .password-toggle svg {
     width: 20px;
     height: 20px;
     display: block;
+}
+
+/* ============================================================
+   АДАПТИВНОСТЬ
+   ============================================================ */
+@media (max-width: 1024px) {
+    .layout { grid-template-columns: 220px 1fr; gap: 24px; }
+    .ads-grid { grid-template-columns: repeat(2, 1fr); }
+    .hero-title { font-size: 44px; }
+    .ad-detail-card { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+    .header-inner { flex-wrap: wrap; gap: 16px; padding: 12px 16px; }
+    .main-nav { display: none; }
+    .layout { grid-template-columns: 1fr; }
+    .ads-grid { grid-template-columns: 1fr; }
+    .hero-title { font-size: 32px; }
+    .search-bar { flex-wrap: wrap; padding: 8px; }
+    .search-input-wrap { width: 100%; }
+    .btn-search, .btn-post-free { flex: 1; }
+    .container { padding: 0 16px; }
+    .content-panel { padding: 16px; }
+    .ad-detail-card { padding: 16px; }
+    .form-card { padding: 24px 20px; }
+    .footer-inner { flex-direction: column; gap: 12px; }
+
+    .detail-head { flex-direction: column; align-items: stretch; }
+    .fav-btn { width: 100%; justify-content: center; }
+    .fav-label { display: inline; }
+}
+
+
+/* ============ Обёртка карточки для сердечка ============ */
+.ad-card-wrap {
+    position: relative;
+}
+
+/* Сердечко поверх карточки */
+.fav-form-overlay {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+    margin: 0;
+}
+
+.fav-mini {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .92);
+    border: none;
+    cursor: pointer;
+    color: var(--text-2);
+    transition: all .15s;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
+}
+
+.fav-mini svg {
+    width: 18px;
+    height: 18px;
+    transition: transform .15s;
+}
+
+.fav-mini:hover {
+    color: #c0392b;
+    transform: scale(1.08);
+}
+
+.fav-mini.is-active {
+    color: #c0392b;
 }

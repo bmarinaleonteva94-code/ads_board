@@ -23,7 +23,6 @@ class Category(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            from django.utils.text import slugify
             self.slug = slugify(self.name, allow_unicode=True) or 'category'
         super().save(*args, **kwargs)
 

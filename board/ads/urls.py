@@ -14,6 +14,7 @@ urlpatterns = [
     path('my/', views.my_ads, name='my_ads'),
     path('favorites/', views.favorites, name='favorites'),
     path('messages/', views.messages_view, name='messages'),
+    path('ad/<str:slug>/message/<int:user_id>/', views.message_send, name='message_send'),
 
     # --- Модерация ---
     path('moderation/ban/<int:user_id>/', views.ban_user, name='ban_user'),

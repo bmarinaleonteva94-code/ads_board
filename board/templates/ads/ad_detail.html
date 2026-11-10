@@ -63,6 +63,28 @@
                     <div><strong>Просмотров:</strong> {{ ad.views }}</div>
                 </div>
 
+                <!-- ===== Отправка сообщения (для покупателей) ===== -->
+                {% if user.is_authenticated and user != ad.author %}
+                    <div class="message-form-block">
+                        <h3 class="message-form-title">Написать продавцу</h3>
+                        <form method="post" action="{% url 'ads:message_send' ad.slug ad.author.pk %}">
+                            {% csrf_token %}
+                            <div class="form-row" style="margin-bottom: 12px;">
+                                <textarea name="text" class="form-control" rows="3"
+                                          placeholder="Здравствуйте! Ещё актуально?" required></textarea>
+                            </div>
+                            <button type="submit" class="btn-primary">Отправить сообщение</button>
+                        </form>
+                    </div>
+                {% elif not user.is_authenticated %}
+                    <div class="message-form-block">
+                        <p class="form-help" style="margin: 0;">
+                            <a href="{% url 'ads:login' %}?next={{ request.path }}">Войдите</a>,
+                            чтобы написать продавцу.
+                        </p>
+                    </div>
+                {% endif %}
+
                 <!-- ===== Действия автора ===== -->
                 {% if user == ad.author %}
                     <div class="form-actions">
@@ -142,51 +164,4 @@
 
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.querySelector('.fav-form');
-    if (!form) return;
-
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const btn = form.querySelector('.fav-btn');
-        const icon = form.querySelector('.fav-icon');
-        const label = form.querySelector('.fav-label');
-
-        const res = await fetch(form.action, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
-                'X-Requested-With': 'XMLHttpRequest',
-            },
-        });
-        if (!res.ok) return;
-
-        const data = await res.json();
-        btn.classList.toggle('is-active', data.is_favorited);
-        icon.setAttribute('fill', data.is_favorited ? 'currentColor' : 'none');
-        label.textContent = data.is_favorited ? 'В избранном' : 'В избранное';
-
-        const navLink = document.querySelector('a[href*="/favorites/"]');
-        if (navLink) {
-            let badge = navLink.querySelector('.badge-count');
-            if (data.favorites_count > 0) {
-                if (!badge) {
-                    badge = document.createElement('span');
-                    badge.className = 'badge-count';
-                    navLink.appendChild(document.createTextNode(' '));
-                    navLink.appendChild(badge);
-                }
-                badge.textContent = data.favorites_count;
-            } else if (badge) {
-                badge.remove();
-            }
-        }
-    });
-});
-</script>
 {% endblock %}

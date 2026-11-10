@@ -12,9 +12,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-from .forms import AdForm, RegisterForm
+from .forms import AdForm, RegisterForm, MessageForm
 from .models import Ad, Category, Favorite, Message, User, UserBan
-
 
 # ============================================================
 #  СПИСОК ОБЪЯВЛЕНИЙ
@@ -310,3 +309,29 @@ def messages_view(request):
     Message.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
 
     return render(request, 'ads/messages.html', {'messages_list': qs})
+
+
+
+@login_required
+def message_send(request, slug, user_id):
+    """Отправка сообщения автору объявления."""
+    ad = get_object_or_404(Ad, slug=slug)
+    recipient = get_object_or_404(User, pk=user_id)
+
+    if recipient == request.user:
+        messages.error(request, 'Нельзя отправить сообщение самому себе')
+        return redirect(ad.get_absolute_url())
+
+    if request.method == 'POST':
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            msg = form.save(commit=False)
+            msg.sender = request.user
+            msg.recipient = recipient
+            msg.ad = ad
+            msg.save()
+            messages.success(request, 'Сообщение отправлено')
+            return redirect(ad.get_absolute_url())
+
+    messages.error(request, 'Не удалось отправить сообщение')
+    return redirect(ad.get_absolute_url())

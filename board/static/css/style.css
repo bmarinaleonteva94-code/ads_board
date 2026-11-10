@@ -1130,3 +1130,27 @@ textarea.form-control {
 .fav-mini.is-active {
     color: #c0392b;
 }
+
+
+/* ============ Форма отправки сообщения ============ */
+.message-form-block {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+}
+
+.message-form-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 16px;
+    color: var(--text);
+    letter-spacing: -.01em;
+}
+
+.message-form-block textarea.form-control {
+    min-height: 100px;
+}
+
+.message-form-block .btn-primary {
+    margin-top: 12px;
+}

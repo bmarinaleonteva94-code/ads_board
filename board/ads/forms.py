@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from .models import Ad
+from .models import Ad, Message
 
 
 class AdForm(forms.ModelForm):
@@ -78,3 +78,22 @@ class RegisterForm(UserCreationForm):
         if User.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError('Пользователь с таким email уже существует.')
         return email
+    
+
+class MessageForm(forms.ModelForm):
+    class Meta:
+        model = Message
+        fields = ('text',)
+        widgets = {
+            'text': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Здравствуйте! Ещё актуально?',
+            }),
+        }
+
+    def clean_text(self):
+        text = self.cleaned_data['text'].strip()
+        if len(text) < 2:
+            raise forms.ValidationError('Сообщение слишком короткое.')
+        return text
